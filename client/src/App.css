@@ -1,0 +1,19 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  box-sizing: border-box;
+  padding: 10%;
+}
+
+.centered {
+  
+}
+
+.wide-input {
+  width: 100%;
+  padding: 30px;
+  box-sizing: border-box;
+}
