@@ -42,8 +42,9 @@ class Room {
 
     addUser = (socket: socket_io.Socket) : User => {
         let user = new User(socket.id);
-        this.users.push(user);
-        return user;
+		this.users.push(user);
+		this.update();
+		return user;
     }
 
     removeUser = (user: User) => {
@@ -57,6 +58,7 @@ class Room {
 		}
 		
 		console.log(this.users);
+		this.update();
 	}
 	
 	getUserFromID = (user_id: string) : User => {
@@ -68,6 +70,10 @@ class Room {
 			return result[0];
 		}
 		return undefined;
+	}
+
+	update = () : void => {
+		io.to(this.id.toString()).emit("room_change", this);
 	}
 };
 
@@ -94,16 +100,29 @@ io.on("connection", (socket) => {
             callback(false);
         }
         
-    });
-
-    socket.on("set_name", (data) => {
-        user.setName(data);
 	});
+	
+	socket.on("view_room", (room_id) => {
+		socket.join(room_id);
+		let room: Room = getRoomFromID(room_id);
+		if(room !== undefined) {
+			console.log("Emitting room update");
+			room.update();
+		}
+	})
 	
 	socket.on("disconnect", () => {
 		console.log("User disconnected");
 		if(room !== undefined)
 			room.removeUser(user);
+	});
+
+	socket.on("create_room", (callback) => {
+		let room_id = genRoomID();
+		let room = new Room(room_id);
+		rooms.push(room);
+		console.log("Created room " + room_id);
+		callback(room_id);
 	});
 });
 
@@ -122,20 +141,6 @@ function genRoomID() {
     return id;
 }
 
-app.get('/create', (req, res) => {
-    let room_id = genRoomID();
-    let room = new Room(room_id);
-    rooms.push(room);
-    console.log("Created room " + room_id);
-    res.redirect("/view/" + room_id);
-});
-
-app.get('/view/:room_id', (req, res) => {
-    // res.send(io.sockets.adapter.rooms[req.params.room_id]);
-    // res.send(io.sockets.clients(req.params.room_id));
-    res.send(getRoomFromID(req.params.room_id));
-})
-
 app.post('/set_user_data', (req, res) => {
 	let user_id = req.body.user_id;
 	let room_id = req.body.room_id;
@@ -146,8 +151,8 @@ app.post('/set_user_data', (req, res) => {
 		let image: any = req.files.image;
 		let extension_start = image.name.lastIndexOf('.');
 		let extension = image.name.substr(extension_start, image.name.length - extension_start);
-		image_path = "public/images/" + user_id + extension;
-		fs.writeFileSync(image_path, image.data);
+		image_path = "/images/" + user_id + extension;
+		fs.writeFileSync("public" + image_path, image.data);
 	} else {
 		console.log("Either image or user_id were undefined");
 	}
@@ -158,6 +163,7 @@ app.post('/set_user_data', (req, res) => {
 		if(user !== undefined) {
 			user.setImagePath(image_path);
 			user.setName(username);
+			room.update();
 		} else {
 			console.log("Couldn't find user in room");
 		}
