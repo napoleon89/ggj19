@@ -1,0 +1,4 @@
+client
+	- room join
+	- lobby - enter name
+	- 

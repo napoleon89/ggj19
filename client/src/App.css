@@ -12,8 +12,23 @@
   
 }
 
-.wide-input {
+.app input[type=text] {
   width: 100%;
   padding: 30px;
+  font-size: 30px;
   box-sizing: border-box;
+}
+
+.app button {
+  width: 100%;
+  padding: 30px;
+  font-size: 30px;
+}
+
+#take-picture {
+  display: none;
+}
+
+.user-photo {
+  width: 100%;
 }
