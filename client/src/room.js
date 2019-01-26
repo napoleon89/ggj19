@@ -8,11 +8,15 @@ export default class Room extends Component {
 			name_str: "",
 			photo: "",
 			photo_file: null,
+			room: undefined,
 		};
 	}
 
 	componentDidMount() {
 		console.log(Globals);
+		Globals.socket.on("round_start", (room) => {
+			this.setState({room: room});
+		});
 	}
 
 	async onNameSet(e) {
@@ -45,21 +49,28 @@ export default class Room extends Component {
 	}
 
 	render() {
-		return (
-			<div>
-				<h3>Welcome to room {this.props.room_id} user {Globals.user_id}</h3>
-				<br />
-				{(this.state.photo !== "") && (
-					<img className="user-photo" src={this.state.photo} />
-				)}
-				<label htmlFor="take-picture">
-				Take picture
-				</label>
-				<input type="file"  id="take-picture" accept="image/*;capture=camera" onChange={this.onPhotoSet.bind(this)} />
-				<h3>Name</h3>
-				<input value={this.state.name_str} onChange={this.onNameValueChange.bind(this)}  className="wide-input" type="text" />
-				<button onClick={this.onNameSet.bind(this)}>Join</button>
-			</div>
-		)
+		if(this.state.room === undefined) {
+			return (
+				<div>
+					{(this.state.photo !== "") && (
+						<img className="user-photo" src={this.state.photo} />
+					)}
+					<label htmlFor="take-picture">
+					Take picture
+					</label>
+					<input type="file"  id="take-picture" accept="image/*;capture=camera" onChange={this.onPhotoSet.bind(this)} />
+					<h3>Name</h3>
+					<input value={this.state.name_str} onChange={this.onNameValueChange.bind(this)}  className="wide-input" type="text" />
+					<button onClick={this.onNameSet.bind(this)}>Join</button>
+				</div>
+			)
+		} else {
+			return (
+				<div>
+					{JSON.stringify(this.state.room)}
+				</div>
+			)
+		}
+		
 	}
 }

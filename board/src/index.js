@@ -21,10 +21,15 @@ class RoomView extends Component {
 		});
 	}
 
+	onRoundStart() {
+		this.props.socket.emit("try_round_start", this.props.match.params.room_id);
+	}
+
 	render() {
 		return (
 			<Fragment>
 				<h3>Welcome to room {this.props.match.params.room_id}</h3>
+				<button onClick={this.onRoundStart.bind(this)}>Start</button>
 				{this.state.room !== undefined && (
 					<Fragment>
 						{this.state.room.users.map((user) => {

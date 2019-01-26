@@ -31,14 +31,29 @@ class User {
 	}
 };
 
+class Round {
+
+};
+
 class Room {
 	id: number;
 	users: Array<User>;
+	current_rount: Round;
+	admin_id: string;
 
     constructor(id: number) {
         this.id = id;
-        this.users = [];
-    }
+		this.users = [];
+	}
+	
+	startRound = () : void => {
+		let round: Round = new Round();
+		this.current_rount = round;
+		this.admin_id = this.users[Math.floor(Math.random() * this.users.length)].id;
+		
+		this.update();
+		this.emitEvent("round_start");
+	}
 
     addUser = (socket: socket_io.Socket) : User => {
         let user = new User(socket.id);
@@ -73,7 +88,11 @@ class Room {
 	}
 
 	update = () : void => {
-		io.to(this.id.toString()).emit("room_change", this);
+		this.emitEvent("room_change");
+	}
+
+	emitEvent = (message: string) : void => {
+		io.to(this.id.toString()).emit(message, this);
 	}
 };
 
@@ -109,6 +128,11 @@ io.on("connection", (socket) => {
 			console.log("Emitting room update");
 			room.update();
 		}
+	});
+
+	socket.on("try_round_start", (room_id) => {
+		let room: Room = getRoomFromID(room_id);
+		room.startRound();
 	})
 	
 	socket.on("disconnect", () => {
