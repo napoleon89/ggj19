@@ -3,6 +3,7 @@ import './App.css';
 import * as io from 'socket.io-client';
 import {BrowserRouter as Router, Route, Link, Navigation} from 'react-router-dom';
 import Room from './room.js';
+import Game from './game.js';
 import Globals from './globals.js';
 
 class App extends Component {
@@ -77,7 +78,8 @@ class App extends Component {
                 <button  onClick={this.onRoomJoin.bind(this)}>Join</button>
             </Fragment>
             } />
-            <Route path="/room/:id" component={() => <Room room_id={this.state.room_str} socket={this.state.socket} />} />
+            <Route exact path="/room/:id" render={(router_props) => <Room {...router_props} room_id={this.state.room_str} socket={this.state.socket} />} />
+            <Route exact path="/room/:id/game" render={(router_props) => <Game {...router_props} room_id={this.state.room_str} socket={this.state.socket} />} />
           </div>
         </Router>
       </div>

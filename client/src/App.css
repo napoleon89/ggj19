@@ -32,3 +32,15 @@
 .user-photo {
   width: 100%;
 }
+
+.btn {
+  display: block;
+  box-sizing: border-box;
+  font-size: 30px;
+  text-align: center;
+  width: 100%;
+  padding: 30px;
+  background: #1abc9c;
+  border-bottom: 5px solid #16a085;
+  color: #ecf0f1;
+}

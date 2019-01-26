@@ -94,6 +94,10 @@ class Room {
 	emitEvent = (message: string) : void => {
 		io.to(this.id.toString()).emit(message, this);
 	}
+
+	isJoinable = () : boolean => {
+		return this.current_rount == undefined || this.current_rount == null;
+	}
 };
 
 let rooms: Array<Room> = new Array<Room>();
@@ -111,7 +115,7 @@ io.on("connection", (socket) => {
 	let room: Room = undefined;
     socket.on("join_room", (data, callback) => {
         room = getRoomFromID(data);
-        if(room !== undefined) {
+        if(room !== undefined && room.isJoinable()) {
             socket.join(data);
             user = room.addUser(socket);
             callback(true, user.id);
@@ -171,7 +175,7 @@ app.post('/set_user_data', (req, res) => {
 	let username = req.body.username;
 	let image_path = "";
 
-	if(req.files.image !== undefined && user_id !== undefined) {
+	if(req.files !== null && req.files.image !== undefined && req.files.image !== null && user_id !== undefined) {
 		let image: any = req.files.image;
 		let extension_start = image.name.lastIndexOf('.');
 		let extension = image.name.substr(extension_start, image.name.length - extension_start);
@@ -194,6 +198,7 @@ app.post('/set_user_data', (req, res) => {
 	} else {
 		console.log("Couldn't find room " + room_id);
 	}
+	res.send("ok");
 });
 
 http.listen(8080, () => {
