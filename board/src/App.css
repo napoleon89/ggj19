@@ -18,3 +18,7 @@
 .user-box img {
   width: 100%;
 }
+
+.admin { 
+  border: 2px solid red !important;
+}

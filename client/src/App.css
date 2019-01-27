@@ -1,6 +1,18 @@
+@font-face {
+  font-family: sp-font;
+  src: url(/sp.ttf);
+}
+
 * {
   margin: 0;
   padding: 0;
+  font-family: sp-font;
+}
+
+body {
+  background: #2c3e50;
+  color: #ecf0f1;
+  
 }
 
 .app {
@@ -19,12 +31,6 @@
   box-sizing: border-box;
 }
 
-.app button {
-  width: 100%;
-  padding: 30px;
-  font-size: 30px;
-}
-
 #take-picture {
   display: none;
 }
@@ -32,7 +38,7 @@
 .user-photo {
   width: 100%;
 }
-
+.app button,
 .btn {
   display: block;
   box-sizing: border-box;
@@ -41,6 +47,7 @@
   width: 100%;
   padding: 30px;
   background: #1abc9c;
+  border: 0px solid;
   border-bottom: 5px solid #16a085;
   color: #ecf0f1;
 }

@@ -4,6 +4,7 @@ import * as io from 'socket.io-client';
 import {BrowserRouter as Router, Route, Link, Navigation} from 'react-router-dom';
 import Room from './room.js';
 import Game from './game.js';
+import Vote from './vote.js';
 import Globals from './globals.js';
 
 class App extends Component {
@@ -15,6 +16,7 @@ class App extends Component {
       connected: false,
       room_str: "",
       error_str: "",
+      room: undefined,
     };
   }
 
@@ -33,16 +35,20 @@ class App extends Component {
       this.setState({connected: Globals.socket.connected});
       console.log(error);
     });
+  }
 
-    if(Globals.socket.connected) {
-      if(window.localStorage.getItem("room_id") != "") {
-        this.joinRoom(window.localStorage.room_id);
+  componentDidMount() {
+    Globals.socket.on("room_change", (room) => {
+      
+      if(room.current_round !== undefined && room.current_round.all_puns_submitted) {
+          this.router.current.history.push("/room/" + this.state.room_str + "/vote");
+          
       }
-    }
+      this.setState({room: room});
+    })
   }
 
   joinRoom(room_id, user_id) {
-    window.localStorage.setItem("room_id", room_id);
     Globals.room_id = room_id;
     Globals.user_id = user_id;
     this.router.current.history.push("/room/" + room_id);
@@ -50,7 +56,9 @@ class App extends Component {
   }
 
   onRoomJoin() {
+    console.log("Clicked on join");
     Globals.socket.emit("join_room", this.state.room_str, (joined, user_id) => {
+      console.log("Attempt to join room " + user_id + " is " + joined);
       if(!joined) {
         this.setState({error_str: "room does not exist"});
       } else {
@@ -78,8 +86,9 @@ class App extends Component {
                 <button  onClick={this.onRoomJoin.bind(this)}>Join</button>
             </Fragment>
             } />
-            <Route exact path="/room/:id" render={(router_props) => <Room {...router_props} room_id={this.state.room_str} socket={this.state.socket} />} />
-            <Route exact path="/room/:id/game" render={(router_props) => <Game {...router_props} room_id={this.state.room_str} socket={this.state.socket} />} />
+            <Route exact path="/room/:id" render={(router_props) => <Room {...router_props} room={this.state.room} room_id={this.state.room_str} socket={this.state.socket} />} />
+            <Route path="/room/:id/vote" render={(router_props) => <Vote {...router_props}  room={this.state.room} room_id={this.state.room_str} socket={this.state.socket} />} />
+            <Route path="/room/:id/game" render={(router_props) => <Game {...router_props}  room={this.state.room} room_id={this.state.room_str} socket={this.state.socket} />} />
           </div>
         </Router>
       </div>

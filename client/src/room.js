@@ -8,6 +8,7 @@ export default class Room extends Component {
 			name_str: "",
 			photo: "",
 			photo_file: null,
+			loading: false,
 		};
 	}
 
@@ -22,16 +23,18 @@ export default class Room extends Component {
 		form_data.append('user_id', Globals.user_id);
 		form_data.append('room_id', this.props.room_id);
 		form_data.append('image', this.state.photo_file);
-		
+		this.setState({loading: true});
 		const post_result = await fetch('/set_user_data', {
 			method: 'POST',
 			body: form_data
 		});
 
+		this.setState({loading: false});
 		if(post_result.ok) {
 			console.log(post_result);
 			this.props.history.push("/room/" + this.props.room_id + "/game");
 		}
+		
 		
 	}
 
@@ -49,12 +52,17 @@ export default class Room extends Component {
 	}
 
 	render() {
+		if(this.state.loading) {
+			return(
+				<h3>Loading</h3>
+			);
+		}
 		return (
 			<div>
 				{(this.state.photo !== "") && (
 					<img className="user-photo" src={this.state.photo} />
 				)}
-				<label class="btn" htmlFor="take-picture">
+				<label className="btn" htmlFor="take-picture">
 				Take picture
 				</label>
 				<input type="file"  id="take-picture" accept="image/*;capture=camera" onChange={this.onPhotoSet.bind(this)} />
